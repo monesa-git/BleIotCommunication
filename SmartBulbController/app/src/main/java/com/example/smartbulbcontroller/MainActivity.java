@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 BTs.add(device);
-                                Log.d(TAG, "onScanResult: BT Device found=>"+device.getName()+"  UUID=>");
+                                Log.d(TAG, "onScanResult: BT Device found=>"+device.getName()+"  Addresss=>"+device.getAddress());
                                 String rs  = "";
                                 for (BluetoothDevice b : BTs){
                                     rs+=b.getName()+"\n";
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                    }
                };
-               Log.d(TAG, "FlowToScanForBLEDevices: le scan started=>"+bluetoothAdapter.startLeScan(mleScanCallback));
+               Log.d(TAG, "FlowToScanForBLEDevices: le scan started=>"+bluetoothAdapter.startLeScan(new UUID[]{UUID.fromString("dfad74bb-6584-b699-4be5-6d8b8076ca97")},mleScanCallback));
                ////////
            }
         }
