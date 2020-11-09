@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SmartBulbController</string>
+    <string name="ble_not_supported">"Device does not support BLE "</string>
+</resources>
