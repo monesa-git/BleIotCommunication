@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">SmartBulbController</string>
     <string name="ble_not_supported">"Device does not support BLE "</string>
+    <string name="OnButton">ON</string>
+    <string name="OffButton">OFF</string>
+    <string name="temperature">Temperature</string>
+    <string name="beep">Beep</string>
 </resources>
