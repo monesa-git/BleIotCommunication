@@ -133,8 +133,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         TemperatureNotify= findViewById(R.id.temperatureText);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         FlowToScanForBLEDevices();
     }
+
+
     void FlowToScanForBLEDevices(){
         if (CheckIfPermissionGranted() ){
             // if bluetooth permissin granted granted
@@ -156,6 +163,17 @@ public class MainActivity extends AppCompatActivity {
                    }
                };
                showProgressBarDialog();
+               Handler handler = new Handler();
+               handler.postDelayed(new Runnable() {
+                   @Override
+                   public void run() {
+                       bluetoothAdapter.stopLeScan(mleScanCallback);
+                       hideProgressBarDialog();
+                       if(bluetoothGatt == null){
+                           Toast.makeText(MainActivity.this, "Sorry no device found", Toast.LENGTH_SHORT).show();
+                       }
+                   }
+               }, 20000);
                Log.d(TAG, "FlowToScanForBLEDevices: le scan started=>"+
                        bluetoothAdapter.startLeScan(new UUID[]{UUID.fromString(bleApp)},
                                mleScanCallback));
@@ -176,6 +194,12 @@ public class MainActivity extends AppCompatActivity {
                                 bluetoothGatt.discoverServices());
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                         hideProgressBarDialog();
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(MainActivity.this, "Device disconnected", Toast.LENGTH_SHORT).show();
+                                TemperatureNotify.setText("");
+                            }
+                        });
                         Log.i(TAG, "Disconnected from GATT server.");
                     }
                 }
