@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -38,12 +39,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-
     // Initializes Bluetooth adapter.
     BluetoothManager bluetoothManager;
     BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
-    private boolean mScanning;
     BluetoothGatt bluetoothGatt;
     ScanCallback leScanCallback;
 
@@ -51,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private Button OffButton;
     private Button OnBeepButton;
     private Button OffBeepButton;
-    private ImageView bulbImage;
     TextView TemperatureNotify;
+    private ProgressDialog progressDialog;
     private BluetoothAdapter.LeScanCallback mleScanCallback;
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
             "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
@@ -66,9 +65,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String temp = "0CED9345-B31F-457D-A6A2-B3DB9B03E39A";
     public static final String beep = "EC958823-F26E-43A9-927C-7E17D8F32A90";
 
-
     //static variables
-    private static final long SCAN_PERIOD = 10000;          // Stops scanning after 10 seconds.
     private static final int REQUEST_ENABLE_BT = 1111;
     private static final int REQUEST_PERMISSION = 2222;
     private static final int REQUEST_ENABLE_LOCATION = 3333;
@@ -77,22 +74,11 @@ public class MainActivity extends AppCompatActivity {
     //variables
     ArrayList<BluetoothDevice> BTs = new ArrayList<>();
     private Handler handler = new Handler();
-    EditText et_deviceList;
-    boolean is_loaction_Enable = false;
-    private int gattStatus;
-
-    private int connectionState = STATE_DISCONNECTED;
-
-    private static final int STATE_DISCONNECTED = 0;
-
-    ///// temporary
-    int limit = 0;  // for no. of calls for flow
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         //if device does not support ble, app is of no use ==> it will close itself
         CheckIfDeviceSupportBLE();
         onButton = findViewById(R.id.OnButton);
@@ -146,21 +132,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         TemperatureNotify= findViewById(R.id.temperatureText);
-
         FlowToScanForBLEDevices();
     }
     void FlowToScanForBLEDevices(){
-        limit++;
-        if (limit>5){
-            return;
-        }
         if (CheckIfPermissionGranted() ){
             // if bluetooth permissin granted granted
             bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
-
            if (CheckIfBTisEnabled() && CheckIfLocationIsOn()){
                mleScanCallback =  new BluetoothAdapter.LeScanCallback() {
                    @Override
@@ -176,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                    }
                };
-
+               showProgressBarDialog();
                Log.d(TAG, "FlowToScanForBLEDevices: le scan started=>"+
                        bluetoothAdapter.startLeScan(new UUID[]{UUID.fromString(bleApp)},
                                mleScanCallback));
@@ -195,9 +174,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.i(TAG, "Connected to GATT server.");
                         Log.i(TAG, "Attempting to start service discovery:" +
                                 bluetoothGatt.discoverServices());
-                        gattStatus = newState;
-//                        bluetoothGatt.discoverServices();
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                        hideProgressBarDialog();
                         Log.i(TAG, "Disconnected from GATT server.");
                     }
                 }
@@ -249,6 +227,9 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                         }
+                        hideProgressBarDialog();
+                    }else{
+                        hideProgressBarDialog();
                     }
                 }
 
@@ -266,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
                             };
                         });
                     }
+                    hideProgressBarDialog();
                 }
 
                 @Override
@@ -276,7 +258,6 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean CheckIfLocationIsOn() {
         Log.d(TAG, "CheckIfLocationIsOn: called");
-        /////////////   Method 1
         try {
             int t = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
             Log.d(TAG, "CheckIfLocationIsOn: location setting mode=>"+t);
@@ -289,7 +270,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Settings.SettingNotFoundException e) {
             e.printStackTrace();
         }
-        //////////  method 1 end
         return true;
     }
 
@@ -302,48 +282,11 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this,
                         new String[]{s},
                         REQUEST_PERMISSION);
-                        // ActivityCompat.shouldShowRequestPermissionRationale(this,s);
                 return false;
             }
         }
         return true;
     }
-
-    private void ConnectToBTDevice() {
-        //connecting to first BT device GAtt server
-        if (BTs.size()>0){
-//            bluetoothGatt = BTs.get(0).connectGatt(this, false, gattCallback);
-        }
-        Toast.makeText(this, "Not Bluetooth Device found to connect ", Toast.LENGTH_SHORT).show();
-
-    }
-
-    void ScanForBLEDevices() {
-        Log.d(TAG, "ScanForBLEDevices: called");
-        Toast.makeText(this, "Scanning for BLE devices", Toast.LENGTH_SHORT).show();
-        // Device scan callback.
-        leScanCallback =
-                new ScanCallback() {
-                    @Override
-                    public void onScanResult(int callbackType, ScanResult result) {
-                        super.onScanResult(callbackType, result);
-                        BTs.add(result.getDevice());
-                        Log.d(TAG, "onScanResult: BT Device found=>"+result.getDevice().getName());
-                        String rs  = "";
-                        for (BluetoothDevice b : BTs){
-                            rs+=b.getName()+"\n";
-                        }
-                        et_deviceList.setText(rs);
-                        // stop the scanning now
-                        bluetoothLeScanner.stopScan(leScanCallback);
-                    }
-                };
-
-        // trying to get only one result
-        bluetoothLeScanner.startScan(leScanCallback);
-
-    }
-
 
     private boolean CheckIfBTisEnabled() {
         Log.d(TAG, "CheckIfBTisEnabled: called");
@@ -378,12 +321,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onActivityResult: App does not work with Bluetooth disabled");
             Toast.makeText(this, "App does not work with Bluetooth disabled", Toast.LENGTH_SHORT).show();
             finish();
-        }
-//        else if(requestCode == REQUEST_ENABLE_LOCATION && resultCode==RESULT_OK){
-//            Log.d(TAG, "onActivityResult: location Enabled");
-//            FlowToScanForBLEDevices();
-//        }
-        else if (requestCode == REQUEST_ENABLE_LOCATION && resultCode!=RESULT_OK){
+        } else if (requestCode == REQUEST_ENABLE_LOCATION && resultCode!=RESULT_OK){
             // again check if setting is changed
             try {
                 int t = Settings.Secure.getInt(getContentResolver(), Settings.Secure.LOCATION_MODE);
@@ -401,7 +339,6 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        ///////////////
     }
 
     private void CheckIfDeviceSupportBLE() {
@@ -412,5 +349,18 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
+    }
+
+    public void showProgressBarDialog()
+    {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    public void hideProgressBarDialog()
+    {
+        progressDialog.dismiss();
     }
 }

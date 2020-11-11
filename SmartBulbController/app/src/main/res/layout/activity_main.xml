@@ -8,33 +8,35 @@
 
     <Button
         android:id="@+id/OnButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="53dp"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="52dp"
         android:layout_marginTop="100dp"
         android:text="@string/OnButton"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/bulbtextview_1"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/OffButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="99dp"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
         android:layout_marginTop="100dp"
+        android:layout_marginEnd="40dp"
         android:text="@string/OffButton"
-        app:layout_constraintStart_toEndOf="@+id/OnButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/temperature"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginStart="8dp"
         android:text="@string/temperature"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/temperatureText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/OnButton" />
+        app:layout_constraintTop_toTopOf="@+id/temperatureText" />
 
     <TextView
         android:id="@+id/temperatureText"
@@ -42,7 +44,6 @@
         android:layout_height="31dp"
         android:layout_marginStart="70dp"
         android:layout_marginTop="34dp"
-        android:text="Text"
         android:textSize="22sp"
         app:layout_constraintStart_toEndOf="@+id/temperature"
         app:layout_constraintTop_toBottomOf="@+id/OffButton" />
@@ -51,16 +52,18 @@
         android:id="@+id/beep"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginStart="8dp"
         android:text="@string/beep"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/onBeepButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/temperature" />
+        app:layout_constraintTop_toTopOf="@+id/onBeepButton" />
 
     <Button
         android:id="@+id/onBeepButton"
-        android:layout_width="73dp"
-        android:layout_height="39dp"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
         android:layout_marginStart="52dp"
         android:layout_marginTop="40dp"
         android:text="@string/OnButton"
@@ -69,12 +72,24 @@
 
     <Button
         android:id="@+id/offBeepButton"
-        android:layout_width="70dp"
-        android:layout_height="41dp"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="40dp"
         android:text="@string/OffButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/temperatureText" />
+        app:layout_constraintTop_toBottomOf="@+id/temperature" />
+
+    <TextView
+        android:id="@+id/bulbtextview_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/bulbtext"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/OnButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/OnButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

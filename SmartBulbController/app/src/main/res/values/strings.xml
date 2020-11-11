@@ -5,4 +5,5 @@
     <string name="OffButton">OFF</string>
     <string name="temperature">Temperature</string>
     <string name="beep">Beep</string>
+    <string name="bulbtext">Bulb</string>
 </resources>
